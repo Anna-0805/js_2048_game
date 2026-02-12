@@ -53,8 +53,8 @@ class Game {
       return;
     }
 
-    this._addRandom();
-    this._addRandom();
+    this._addRandom(2);
+    this._addRandom(2);
 
     this.status = Game.STATUS.PLAYING;
   }
@@ -62,7 +62,10 @@ class Game {
   restart() {
     this.state = this.initialState.map((r) => r.slice());
     this.score = 0;
-    this.status = Game.STATUS.IDLE;
+    this.status = Game.STATUS.PLAYING;
+
+    this._addRandom();
+    this._addRandom();
   }
 
   _move(dir) {
