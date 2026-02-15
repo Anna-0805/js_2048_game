@@ -1,5 +1,13 @@
 'use strict';
 
+import {
+  BOARD_SIZE,
+  WIN_VALUE,
+  INITIAL_RANDOMS_TILES,
+  PROBABILITY_OF_4,
+  DIRECTIONS,
+} from './constants';
+
 class Game {
   static STATUS = {
     IDLE: 'idle',
@@ -9,7 +17,7 @@ class Game {
   };
 
   constructor(initialState) {
-    this.size = 4;
+    this.size = BOARD_SIZE;
 
     this.initialState = initialState
       ? initialState.map((r) => r.slice())
@@ -21,19 +29,19 @@ class Game {
   }
 
   moveLeft() {
-    return this._move('left');
+    return this._move(DIRECTIONS.LEFT);
   }
 
   moveRight() {
-    return this._move('right');
+    return this._move(DIRECTIONS.RIGHT);
   }
 
   moveUp() {
-    return this._move('up');
+    return this._move(DIRECTIONS.UP);
   }
 
   moveDown() {
-    return this._move('down');
+    return this._move(DIRECTIONS.DOWN);
   }
 
   getScore() {
@@ -53,8 +61,9 @@ class Game {
       return;
     }
 
-    this._addRandom(2);
-    this._addRandom(2);
+    for (let i = 0; i < INITIAL_RANDOMS_TILES; i++) {
+      this._addRandom();
+    }
 
     this.status = Game.STATUS.PLAYING;
   }
@@ -64,10 +73,10 @@ class Game {
     this.score = 0;
     this.status = Game.STATUS.PLAYING;
 
-    this._addRandom();
-    this._addRandom();
+    for (let i = 0; i < INITIAL_RANDOMS_TILES; i++) {
+      this._addRandom();
+    }
   }
-
   _move(dir) {
     if (this.status !== Game.STATUS.PLAYING) {
       return false;
@@ -76,9 +85,12 @@ class Game {
     const prevState = JSON.stringify(this.state);
     let gained = 0;
 
-    if (dir === 'left' || dir === 'right') {
+    if (dir === DIRECTIONS.LEFT || dir === DIRECTIONS.RIGHT) {
       for (let r = 0; r < this.size; r++) {
-        const { line, score } = this._mergeLine(this.state[r], dir === 'right');
+        const { line, score } = this._mergeLine(
+          this.state[r],
+          dir === DIRECTIONS.RIGHT,
+        );
 
         this.state[r] = line;
         gained += score;
@@ -91,7 +103,7 @@ class Game {
           col.push(this.state[r][c]);
         }
 
-        const { line, score } = this._mergeLine(col, dir === 'down');
+        const { line, score } = this._mergeLine(col, dir === DIRECTIONS.DOWN);
 
         for (let r = 0; r < this.size; r++) {
           this.state[r][c] = line[r];
@@ -166,11 +178,11 @@ class Game {
 
     const [r, c] = empties[Math.floor(Math.random() * empties.length)];
 
-    this.state[r][c] = Math.random() < 0.1 ? 4 : 2;
+    this.state[r][c] = Math.random() < PROBABILITY_OF_4 ? 4 : 2;
   }
 
   _has2048() {
-    return this.state.some((row) => row.includes(2048));
+    return this.state.some((row) => row.includes(WIN_VALUE));
   }
 
   _hasMoves() {
@@ -182,11 +194,11 @@ class Game {
           return true;
         }
 
-        if (c < 3 && this.state[r][c + 1] === v) {
+        if (c < this.size - 1 && this.state[r][c + 1] === v) {
           return true;
         }
 
-        if (r < 3 && this.state[r + 1][c] === v) {
+        if (r < this.size - 1 && this.state[r + 1][c] === v) {
           return true;
         }
       }

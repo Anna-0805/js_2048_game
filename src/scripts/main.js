@@ -1,6 +1,7 @@
 'use strict';
 
 import Game from '../modules/Game.class';
+import { BOARD_SIZE } from '../modules/constants';
 
 const game = new Game();
 
@@ -32,16 +33,21 @@ function render() {
   scoreEl.textContent = String(game.getScore());
 
   // board
-  for (let r = 0; r < 4; r++) {
-    for (let c = 0; c < 4; c++) {
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
       const value = state[r][c];
-      const td = cells[r * 4 + c];
+      const td = cells[r * BOARD_SIZE + c];
 
       clearCellClasses(td);
 
       if (value) {
         td.textContent = String(value);
         td.classList.add(`field-cell--${value}`);
+        td.classList.add('tile-appear');
+
+        setTimeout(() => {
+          td.classList.remove('tile-appear');
+        }, 150);
       } else {
         td.textContent = '';
       }
